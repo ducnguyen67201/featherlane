@@ -2,7 +2,7 @@
 
 ## Environment configuration
 
-Environment overrides are validated with **T3 Env** (`@t3-oss/env-core`) in each process's `env.ts`. Application code uses typed values instead of reading `process.env` directly.
+Environment overrides are validated with **T3 Env** (`@t3-oss/env-core`) in each process's `Env.ts`. Application code uses typed values instead of reading `process.env` directly.
 
 - CLI: `FEATHERLANE_AGENT_CONFIG` selects the agent JSON file.
 - Broker: `FEATHERLANE_BROKER_CONFIG` selects the broker JSON file.
@@ -15,7 +15,7 @@ T3 Env validates environment values; it does not inject secrets or load dotenv f
 To supply an optional local `.env`, create it from the blank `.env.example` and explicitly ask Node to load it, for example:
 
 ```sh
-pnpm exec node --env-file=.env --import tsx apps/cli/src/main.ts connections
+pnpm exec node --env-file=.env --import tsx apps/cli/src/Main.ts connections
 ```
 
 Normal `pnpm dev` and `pnpm cli` use the environment inherited from your shell and do not automatically load `.env`. Never add server credentials to Vite's client-exposed environment.
@@ -57,20 +57,24 @@ pnpm cli release REQUEST_UUID
 - Broker restart invalidates pending requests and active grants.
 - The owner console is manual-refresh and shows at most 200 recent requests.
 
+## Console UI
+
+The console uses Mantine's packaged components and a small theme, not a locally maintained UI library. See [console UI ownership](docs/Architecture.md#console-ui) for where to change the theme, page and approval behavior. Start it with the existing `pnpm dev` command; no separate UI setup is required.
+
 ## Database
 
 The broker uses Prisma ORM with SQLite. Edit `apps/broker/prisma/schema.prisma` for models and use typed Prisma queries in the persistence adapter. SQL is confined to versioned migration files, not application queries.
 
-`pnpm dev` runs `pnpm db:generate` followed by `pnpm db:migrate` automatically, once before the watchers start, not on each hot reload. Direct `pnpm dev:broker` and compiled broker startup still require these preparation steps separately. To create a migration after editing models, use `pnpm db:dev` on a disposable database and review its output first. Existing pre-Prisma demo databases need an explicit baseline; follow [database setup and upgrade](docs/database.md), not a reset. Database commands use `databasePath` from the broker config unless `FEATHERLANE_DATABASE_PATH` is explicitly supplied for tooling. Leave that override unset during normal development: it does not change the database used by the running broker.
+`pnpm dev` runs `pnpm db:generate` followed by `pnpm db:migrate` automatically, once before the watchers start, not on each hot reload. Direct `pnpm dev:broker` and compiled broker startup still require these preparation steps separately. To create a migration after editing models, use `pnpm db:dev` on a disposable database and review its output first. Existing pre-Prisma demo databases need an explicit baseline; follow [database setup and upgrade](docs/Database.md), not a reset. Database commands use `databasePath` from the broker config unless `FEATHERLANE_DATABASE_PATH` is explicitly supplied for tooling. Leave that override unset during normal development: it does not change the database used by the running broker.
 
 ## Build and MCP
 
 ```sh
 pnpm build
-node apps/cli/dist/main.js mcp
+node apps/cli/dist/Main.js mcp
 ```
 
-The last command starts an MCP **stdio** server; use it as a child process of your MCP client, not as an HTTP service. Configure the client with the absolute Node executable and `apps/cli/dist/main.js` path, argument `mcp`, and environment `FEATHERLANE_AGENT_CONFIG=/absolute/path/to/agent.json`. Never configure it with the owner token.
+The last command starts an MCP **stdio** server; use it as a child process of your MCP client, not as an HTTP service. Configure the client with the absolute Node executable and `apps/cli/dist/Main.js` path, argument `mcp`, and environment `FEATHERLANE_AGENT_CONFIG=/absolute/path/to/agent.json`. Never configure it with the owner token.
 
 Exposed tools: `list_connections`, `request_access`, `access_status`, `release_access`. There are no approval, raw-secret, shell, or browser-evaluation tools. Codex/Claude-specific configuration installers are not implemented.
 
@@ -105,7 +109,7 @@ tests/             Domain, store, HTTP, SDK and adapter tests
 scripts/           Setup, boundary checking, integration
 ```
 
-See [architecture](docs/architecture.md), [API](docs/api.md), [security boundaries](SECURITY.md), and [contributing](CONTRIBUTING.md).
+See [architecture](docs/Architecture.md), [API](docs/Api.md), [security boundaries](SECURITY.md), and [contributing](CONTRIBUTING.md).
 
 ## Public/private development
 

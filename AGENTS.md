@@ -2,11 +2,19 @@
 
 ## Read first and preserve boundaries
 
-Read README.md and docs/architecture.md before changing code. This repository is a standalone Git/pnpm root; never import sibling-repository source. Preserve teammates' edits and keep changes scoped.
+Read README.md and docs/Architecture.md before changing code. This repository is a standalone Git/pnpm root; never import sibling-repository source. Preserve teammates' edits and keep changes scoped.
 
 Use Node.js and strict TypeScript with public contracts at boundaries and explicit application ports. Domain code has no framework or I/O imports. Keep a modular monolith; introduce shared packages, services, or event infrastructure only for demonstrated needs.
 
 Public code must build and test without private code or credentials. The private repository consumes the versioned public HTTP API or a published SDK, not sibling source. Do not automatically publish, push, deploy, or change licensing.
+
+## File naming — PascalCase
+
+Use PascalCase for hand-written source, component, hook, script, test and documentation filenames: `AccessRequestsPage.tsx`, `OwnerApi.ts`, `AccessService.ts`, `UseAccessRequests.ts`, `CheckBoundaries.mjs`, `BrokerUrl.test.ts`, and `Architecture.md`. Do not use kebab-case or snake_case for these filenames. Keep conventional suffixes such as `.test.ts` and `.d.ts` lowercase. Hook function names still start with `use`; changing a filename does not change exported identifiers.
+
+Keep tool-discovered/configuration names and standard project files unchanged, including `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `tsconfig*.json`, `*.config.*`, `vite-env.d.ts`, `index.html`, `schema.prisma`, dotfiles, `AGENTS.md`, `README.md`, `SECURITY.md` and `CONTRIBUTING.md`. Do not rename generated files, applied migrations, frozen fixtures or local runtime data. This preference governs filenames, not folder names, package names or public import paths.
+
+When renaming, update exact-case imports, package export targets, CLI/bin and build paths, HTML entrypoints, tests and documentation together. Preserve public package specifiers and wire contracts. Use an intermediate filename for case-only renames so Git records them correctly on case-insensitive filesystems. The filename tests enforce this preference for owned code and docs.
 
 ## Plain-language names
 
@@ -53,6 +61,21 @@ Ask: “Can a new teammate tell what this does, to what, and whether it checks, 
 
 Comments explain reasons and constraints; they should not be needed to translate the name. Keep established domain terms consistent, update callers/tests/docs when renaming, and do not change public API fields or wire formats merely for style. Never promise more than the implementation does: a URL check is not proof that a destination is safe.
 
+## Type safety — no `any`
+
+Keep type safety end to end: contracts, database adapters, services, SDK, CLI/MCP, React state/props/hooks, scripts and tests. Do not introduce explicit or implicit `any`, including `any[]`, `Promise<any>`, generic defaults or untyped mock implementations.
+
+- Keep TypeScript strict mode, `noImplicitAny`, `useUnknownInCatchVariables`, `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` enabled. Do not weaken checks to make a change pass.
+- Treat untrusted JSON, HTTP responses, configuration files and caught errors as `unknown`. Validate with the owning Zod schema or narrow with a real type guard before reading fields. A type assertion or a response generic is not runtime validation.
+- Derive shared types from their canonical schemas/constants; use Prisma-generated types only inside persistence adapters. Do not duplicate shapes that already have an owner.
+- Give exported hooks and boundary functions clear return contracts. Keep component props and state typed; let callbacks infer their types from those contracts. If a map callback becomes implicit `any`, fix its upstream data/import/return type rather than annotating just that callback.
+- Type test doubles against the real API, for example `vi.fn<typeof fetch>()`. Tests must not bypass the same safety requirements as application code.
+- Prefer inference when it is precise, `satisfies` for checked object shapes, and narrowing for unions. Do not use `as any`, `as unknown as T`, unchecked assertions, non-null assertions or TypeScript/ESLint suppression comments to hide a type error.
+- Keep new application code in TypeScript. Existing JavaScript tooling should use concrete JSDoc contracts for inputs and outputs when changed; do not spread library-provided `any` into owned code.
+- Do not edit dependency declarations or generated clients to remove their internal `any`. Contain untyped third-party values at the adapter boundary as `unknown` and validate before use.
+
+`pnpm typecheck` rejects implicit `any` in owned TypeScript, and `pnpm lint` rejects explicit `any` and unsafe assignments, arguments, calls, member access and returns in TypeScript, including tests. These checks supplement runtime boundary validation; compile-time types alone do not validate external data.
+
 ## Named constants for fixed domain values
 
 Represent fixed sets of decisions, statuses, policies and error codes with descriptive `as const` objects, not repeated magic strings or separately maintained string-union types. Use a PascalCase name for the group and UPPER_SNAKE_CASE member names so call sites read clearly: `AccessDecision.APPROVE`, `AccessStatus.PENDING`, and `ConnectionPolicy.ASK`.
@@ -76,7 +99,7 @@ Preserve existing serialized strings and database values when applying this patt
 
 Extract non-obvious validation or a distinct reusable responsibility into a small, clearly named function. Avoid dense inline conditions and deeply nested expressions when a named helper makes the caller easier to read. Do not split obvious statements into unnecessary layers.
 
-Keep helpers with their owning feature/package in descriptive files, such as `validation/broker-url.ts`. Do not create catch-all `utils.ts`, `helpers.ts`, or generic common packages. Keep local implementation helpers unexported. Promote code into a focused shared package only after multiple real consumers need the same semantics; use explicit package exports. See docs/architecture.md for the ownership map.
+Keep helpers with their owning feature/package in descriptive files, such as `validation/BrokerUrl.ts`. Do not create catch-all `utils.ts`, `helpers.ts`, or generic common packages. Keep local implementation helpers unexported. Promote code into a focused shared package only after multiple real consumers need the same semantics; use explicit package exports. See docs/Architecture.md for the ownership map.
 
 ## Readable formatting
 
@@ -94,7 +117,7 @@ Keep comments next to the code they explain and update them when behavior change
 
 Do not use deprecated APIs or suppress deprecation warnings. Typed ESLint enforces `@typescript-eslint/no-deprecated` across TypeScript and JavaScript tooling. Use Zod's supported top-level `z.url()`, `z.uuid()`, and `z.strictObject()` APIs; preserve validation semantics when migrating dependencies.
 
-Environment settings belong in each process's `env.ts` module using `@t3-oss/env-core`. Application logic consumes validated values rather than reading `process.env` directly. Do not bypass validation, log validation inputs, or import server env modules into the browser console.
+Environment settings belong in each process's `Env.ts` module using `@t3-oss/env-core`. Application logic consumes validated values rather than reading `process.env` directly. Do not bypass validation, log validation inputs, or import server env modules into the browser console.
 
 Load environment validation lazily inside startup error handling. Tests inject environment objects instead of changing global `process.env`. Integration harnesses may forward the process environment to child processes. T3 Env validates supplied values; it does not inject secrets or automatically load `.env` files. Validate JSON file contents separately in the owning configuration module.
 

@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'prisma/config';
-import { loadDatabaseEnv } from './scripts/database/env.js';
+import { loadDatabaseEnv } from './scripts/database/Env.js';
 
 const databasePath = loadDatabaseEnv().FEATHERLANE_DATABASE_PATH;
 
