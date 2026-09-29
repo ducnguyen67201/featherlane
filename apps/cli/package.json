@@ -9,7 +9,7 @@
     "README.md"
   ],
   "bin": {
-    "featherlane": "./dist/main.js"
+    "featherlane": "./dist/Main.js"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json"

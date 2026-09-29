@@ -5,9 +5,9 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@featherlane/contracts/access-values": ["packages/contracts/src/access-values.ts"],
-      "@featherlane/contracts": ["packages/contracts/src/index.ts"],
-      "@featherlane/client": ["packages/client/src/index.ts"]
+      "@featherlane/contracts/access-values": ["packages/contracts/src/AccessValues.ts"],
+      "@featherlane/contracts": ["packages/contracts/src/Index.ts"],
+      "@featherlane/client": ["packages/client/src/Index.ts"]
     }
   },
   "include": [

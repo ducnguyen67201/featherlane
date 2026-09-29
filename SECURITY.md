@@ -22,7 +22,7 @@ Not implemented:
 
 Important: an agent running as your OS user with filesystem access may read broker configuration and owner-token files. Mode 0600 is not protection against that agent. Likewise, opening both repositories in one editor gives an editor agent access to both. Do not claim the demo provides zero-trust isolation.
 
-The [deferred runtime-trust problem](docs/deferred-runtime-trust.md) tracks the work required to authenticate execution targets, bind credential use to the actual destination and isolate session material. It is an open research/implementation record, not a claim that browser attestation or protected execution exists.
+The [deferred runtime-trust problem](docs/DeferredRuntimeTrust.md) tracks the work required to authenticate execution targets, bind credential use to the actual destination and isolate session material. It is an open research/implementation record, not a claim that browser attestation or protected execution exists.
 
 The bearer tokens are local fixture credentials, not production secrets. Do not share them or check them into Git. Setup defaults outside this repo; .gitignore covers accidental .env/database artifacts but is not a substitute for secret scanning.
 

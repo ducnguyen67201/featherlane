@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@featherlane/contracts': fileURLToPath(
-        new URL('../../packages/contracts/src/index.ts', import.meta.url),
+        new URL('../../packages/contracts/src/Index.ts', import.meta.url),
       ),
     },
   },

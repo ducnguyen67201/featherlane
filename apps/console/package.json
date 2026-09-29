@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@featherlane/contracts": "workspace:*",
+    "@mantine/core": "9.6.3",
+    "@mantine/hooks": "9.6.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },

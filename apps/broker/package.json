@@ -10,7 +10,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "node ../../scripts/clean-broker-build.mjs && tsc -p tsconfig.build.json"
+    "build": "node ../../scripts/CleanBrokerBuild.mjs && tsc -p tsconfig.build.json"
   },
   "dependencies": {
     "@fastify/rate-limit": "10.3.0",

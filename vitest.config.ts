@@ -5,13 +5,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@featherlane/contracts/access-values': fileURLToPath(
-        new URL('./packages/contracts/src/access-values.ts', import.meta.url),
+        new URL('./packages/contracts/src/AccessValues.ts', import.meta.url),
       ),
       '@featherlane/contracts': fileURLToPath(
-        new URL('./packages/contracts/src/index.ts', import.meta.url),
+        new URL('./packages/contracts/src/Index.ts', import.meta.url),
       ),
       '@featherlane/client': fileURLToPath(
-        new URL('./packages/client/src/index.ts', import.meta.url),
+        new URL('./packages/client/src/Index.ts', import.meta.url),
       ),
     },
   },
