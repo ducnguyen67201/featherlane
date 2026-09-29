@@ -1,0 +1,8 @@
+# Copy to CODEOWNERS and replace placeholders with real users/teams.
+# Enable required review/CI separately; this file does not grant read isolation.
+# /apps/broker/ @YOUR_ORG/access-team
+# /apps/cli/ @YOUR_ORG/integrations-team
+# /apps/browser-worker/ @YOUR_ORG/runtime-team
+# /apps/console/ @YOUR_ORG/ui-team
+# /packages/contracts/ @YOUR_ORG/maintainers
+# /.github/ @YOUR_ORG/maintainers

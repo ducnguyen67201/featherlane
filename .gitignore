@@ -1,0 +1,16 @@
+node_modules/
+apps/broker/src/generated/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.db
+*.db-*
+*.sqlite*
+*.log
+*.tgz
+.playwright/
+test-results/
+playwright-report/
+.DS_Store

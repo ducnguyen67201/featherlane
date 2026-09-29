@@ -1,0 +1,56 @@
+{
+  "name": "featherlane-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "packageManager": "pnpm@11.16.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.14.1",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=24.14.1 <25"
+  },
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "tsx scripts/database/migrate.ts deploy",
+    "db:baseline": "tsx scripts/database/migrate.ts baseline",
+    "db:dev": "tsx scripts/database/migrate.ts dev",
+    "setup": "tsx scripts/setup.ts",
+    "dev": "pnpm db:generate && pnpm db:migrate && concurrently --kill-others -n broker,console \"pnpm dev:broker\" \"pnpm dev:console\"",
+    "dev:broker": "tsx watch apps/broker/src/main.ts",
+    "dev:console": "pnpm --filter @featherlane/console dev",
+    "cli": "tsx apps/cli/src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . && node scripts/check-boundaries.mjs",
+    "format": "prettier --write . && eslint . --fix && prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "build": "pnpm db:generate && pnpm -r run build",
+    "test:integration": "node scripts/integration.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@modelcontextprotocol/client": "2.1.0",
+    "@stylistic/eslint-plugin": "5.10.0",
+    "@t3-oss/env-core": "0.13.11",
+    "@types/node": "24.19.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "concurrently": "9.2.1",
+    "eslint": "10.11.0",
+    "playwright": "1.63.0",
+    "prettier": "3.9.9",
+    "prisma": "7.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.2",
+    "zod": "4.6.5"
+  }
+}

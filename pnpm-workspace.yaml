@@ -1,0 +1,25 @@
+packages:
+  - apps/*
+  - packages/*
+allowBuilds:
+  '@prisma/engines': true
+  prisma: true
+  better-sqlite3: true
+  esbuild: true
+minimumReleaseAgeExclude:
+  - '@typescript-eslint/eslint-plugin@8.71.0'
+  - '@typescript-eslint/parser@8.71.0'
+  - '@typescript-eslint/project-service@8.71.0'
+  - '@typescript-eslint/scope-manager@8.71.0'
+  - '@typescript-eslint/tsconfig-utils@8.71.0'
+  - '@typescript-eslint/type-utils@8.71.0'
+  - '@typescript-eslint/types@8.71.0'
+  - '@typescript-eslint/typescript-estree@8.71.0'
+  - '@typescript-eslint/utils@8.71.0'
+  - '@typescript-eslint/visitor-keys@8.71.0'
+  - typescript-eslint@8.71.0
+saveExact: true
+overrides:
+  # Prisma 7.10 tooling pins affected versions; keep fixes scoped to those parents.
+  '@prisma/config@7.10.0>deepmerge-ts': 8.0.2
+  'prisma@7.10.0>mysql2': 3.23.1

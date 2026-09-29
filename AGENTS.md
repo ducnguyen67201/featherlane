@@ -1,0 +1,119 @@
+# Featherlane repository instructions
+
+## Read first and preserve boundaries
+
+Read README.md and docs/architecture.md before changing code. This repository is a standalone Git/pnpm root; never import sibling-repository source. Preserve teammates' edits and keep changes scoped.
+
+Use Node.js and strict TypeScript with public contracts at boundaries and explicit application ports. Domain code has no framework or I/O imports. Keep a modular monolith; introduce shared packages, services, or event infrastructure only for demonstrated needs.
+
+Public code must build and test without private code or credentials. The private repository consumes the versioned public HTTP API or a published SDK, not sibling source. Do not automatically publish, push, deploy, or change licensing.
+
+## Plain-language names
+
+Write names as short, natural phrases a human can understand at the call site without opening the implementation. Name the task in the reader's vocabulary, not an internal algorithm or an abbreviation they must decode.
+
+### Functions: action first, then what it acts on
+
+Start function and method names with a specific verb, followed by the thing being acted on. Add a source, destination, condition, or result only when it removes ambiguity:
+
+`verb + subject + useful context`
+
+- `loadAgentConfigFromFile`: load what, and from where?
+- `fetchBrokerConnections`: fetch which data?
+- `approveAccessRequest`: approve what?
+- `revokeExpiredGrants`: revoke which grants?
+- `validateAndFormatBrokerUrl`: check which value, and what transformation happens?
+
+These are naming examples, not a claim that every example function already exists.
+
+Choose a verb that describes the actual behavior: `read` for reading, `fetch` for a network request, `parse` for converting a representation, `validate` for checking rules, `format` for changing presentation, and `save`, `send`, `approve`, or `revoke` for those specific actions. Do not hide writes or state changes behind a read-like name.
+
+Avoid vague verbs such as `process`, `handle`, `manage`, or `normalize` when a more concrete action is available. `processRequest` does not tell the reader whether it validates, saves, sends, or approves a request. An event callback may use `handle` when the event is explicit, such as `handleApproveButtonClick`; the underlying operation should still have a specific action name.
+
+### Boolean checks: read like yes/no questions
+
+Use `is`, `has`, `can`, or another natural predicate such as `uses`:
+
+- `isBrokerUrlAllowed`: is this broker URL allowed by the configured rules?
+- `hasOwnerToken`: is an owner token present? This does not imply that it is valid.
+- `canApproveAccessRequest`: can this request be approved under the rules being checked?
+- `usesHttpsOrLocalHttp`: does the address use one of these allowed transports?
+
+Prefer positive wording so conditions read naturally. Distinguish a boolean check from a validator that throws or returns a parsed value; document the failure behavior.
+
+### Values and types: name the thing, not an action
+
+Use descriptive nouns for variables, parameters, and types: `brokerUrl`, `agentToken`, `accessRequest`, and `BrokerConfig`. Use plural nouns for collections and include units when they matter, such as `accessRequests`, `timeoutMs`, and `ttlSeconds`.
+
+Avoid unexplained shorthand such as `cfg`, `req`, or `val` in application logic. Standard terms such as URL, HTTP, and ID are fine. Preserve framework conventions, such as React component names and `use...` hooks, rather than forcing every identifier to start with an action verb.
+
+### Read the call aloud before keeping the name
+
+Ask: “Can a new teammate tell what this does, to what, and whether it checks, returns, or changes something?” If not, choose a clearer name. A slightly longer name is worthwhile when it adds meaning; do not turn names into paragraphs or repeat context already obvious from the caller.
+
+Comments explain reasons and constraints; they should not be needed to translate the name. Keep established domain terms consistent, update callers/tests/docs when renaming, and do not change public API fields or wire formats merely for style. Never promise more than the implementation does: a URL check is not proof that a destination is safe.
+
+## Named constants for fixed domain values
+
+Represent fixed sets of decisions, statuses, policies and error codes with descriptive `as const` objects, not repeated magic strings or separately maintained string-union types. Use a PascalCase name for the group and UPPER_SNAKE_CASE member names so call sites read clearly: `AccessDecision.APPROVE`, `AccessStatus.PENDING`, and `ConnectionPolicy.ASK`.
+
+```ts
+export const AccessDecision = {
+  APPROVE: 'approve',
+  DENY: 'deny',
+} as const;
+
+export type AccessDecision = (typeof AccessDecision)[keyof typeof AccessDecision];
+```
+
+Derive the TypeScript union from the constant object and use that type in function signatures. Build Zod enum schemas from the same object, such as `z.enum(AccessDecision)`. Keep decisions, lifecycle states and audit events separate even when some string values happen to match. Prefer this pattern over introducing TypeScript `enum` or `const enum` for new hand-written domain value sets.
+
+Place values with their owner, not in a global constants dumping ground. Public vocabulary shared by broker, SDK and UI belongs in the contracts package; local-only actions/errors stay in their feature. Domain code may import framework-free contract values but must not import Prisma-generated enums. An independent private consumer must not deep-import public sibling source to share constants.
+
+Preserve existing serialized strings and database values when applying this pattern. Do not rewrite applied migrations or generated Prisma code; use compatibility tests to keep database enums and public values aligned. Literal strings remain appropriate in the canonical declarations, independent wire-contract/legacy fixtures, user-facing text and third-party protocol values. Do not extract every string indiscriminately. `as const` gives compile-time readonly literal types; it is not runtime freezing or a security boundary.
+
+## Small functions and discoverable helpers
+
+Extract non-obvious validation or a distinct reusable responsibility into a small, clearly named function. Avoid dense inline conditions and deeply nested expressions when a named helper makes the caller easier to read. Do not split obvious statements into unnecessary layers.
+
+Keep helpers with their owning feature/package in descriptive files, such as `validation/broker-url.ts`. Do not create catch-all `utils.ts`, `helpers.ts`, or generic common packages. Keep local implementation helpers unexported. Promote code into a focused shared package only after multiple real consumers need the same semantics; use explicit package exports. See docs/architecture.md for the ownership map.
+
+## Readable formatting
+
+Keep blank lines between functions, class methods, exported declarations, and logical blocks. Group closely related short variable declarations together. Always use braces for conditionals and loops. Do not compress blocks or remove meaningful spacing to save lines.
+
+Prettier handles layout; ESLint handles the additional spacing and braces rules. Run `pnpm format` to apply both. `pnpm lint` and `pnpm format:check` enforce the result. Preserve repository-local format-on-save settings.
+
+## Useful block comments
+
+Use `/** ... */` above important APIs/classes for responsibilities and contracts, and `/* ... */` for non-obvious implementation decisions. Explain why, ownership/trust boundaries, invariants, units, side effects, and limitations where useful. Editors show JSDoc on hover.
+
+Keep comments next to the code they explain and update them when behavior changes. Do not narrate obvious statements, require boilerplate on every function, or leave commented-out code. Comments supplement clear names and tests; they must not claim unimplemented security guarantees.
+
+## Supported APIs and validated configuration
+
+Do not use deprecated APIs or suppress deprecation warnings. Typed ESLint enforces `@typescript-eslint/no-deprecated` across TypeScript and JavaScript tooling. Use Zod's supported top-level `z.url()`, `z.uuid()`, and `z.strictObject()` APIs; preserve validation semantics when migrating dependencies.
+
+Environment settings belong in each process's `env.ts` module using `@t3-oss/env-core`. Application logic consumes validated values rather than reading `process.env` directly. Do not bypass validation, log validation inputs, or import server env modules into the browser console.
+
+Load environment validation lazily inside startup error handling. Tests inject environment objects instead of changing global `process.env`. Integration harnesses may forward the process environment to child processes. T3 Env validates supplied values; it does not inject secrets or automatically load `.env` files. Validate JSON file contents separately in the owning configuration module.
+
+## Typed database access
+
+Use Prisma models and generated types for database access, not handwritten SQL queries or direct SQLite driver calls in application code. Keep Prisma inside persistence adapters; application/domain layers depend on their own ports. Await database operations and use the transaction-scoped client for every write that must commit together, including audit records.
+
+Keep schema changes in reviewed, versioned Prisma migrations. SQL migration artifacts and frozen legacy test fixtures are allowed; raw application queries are not. Do not edit generated clients, rewrite applied migrations, reset existing databases, or silently discard data. Document and test any legacy-data upgrade. The private HTTP consumer currently has no database; do not add one merely to match the public broker.
+
+## Security and current product limits
+
+Keep owner authorization separate from agent authorization. Do not add secrets, real browser profiles, or credentials. All foundation accounts are synthetic. A grant here is an authorization record, not an authenticated browser session. Do not weaken tests or claim protected browser execution exists.
+
+Never log credentials, raw configuration, or sensitive validation details. Formatting and helper refactors must preserve existing authorization and validation behavior.
+
+## Verification — final step only
+
+Finish the entire requested implementation before running validation. Complete all related code, imports, tests, and documentation edits first, including updates required by helper renames. Do not run lint, formatting checks, type checks, tests, builds, or integration checks between intermediate implementation edits.
+
+As the final step before handoff, run `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, and `pnpm test` for code changes. Also run `pnpm build` and `pnpm test:integration` when runtime wiring, packaging, or end-to-end behavior changes.
+
+If final validation reveals failures, finish the necessary fixes, then rerun the affected checks before handoff. Report the results and any checks not run; never claim validation passed without running it.

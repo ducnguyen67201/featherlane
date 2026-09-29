@@ -1,0 +1,25 @@
+{
+  "name": "@featherlane/cli",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "bin": {
+    "featherlane": "./dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@t3-oss/env-core": "0.13.11",
+    "@featherlane/client": "workspace:*",
+    "@featherlane/contracts": "workspace:*",
+    "@modelcontextprotocol/server": "2.1.0",
+    "commander": "15.0.0",
+    "zod": "4.6.5"
+  }
+}

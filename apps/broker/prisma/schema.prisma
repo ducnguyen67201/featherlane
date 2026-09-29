@@ -1,0 +1,68 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum AccessStatus {
+  pending
+  granted
+  denied
+  expired
+  revoked
+}
+
+/// Typed columns replace the old JSON body. Sequence preserves insertion ordering.
+model AccessRequest {
+  sequence       Int          @id @default(autoincrement())
+  id             String       @unique
+  actorId        String
+  connectionId   String
+  origin         String
+  purpose        String
+  ttlSeconds     Int
+  idempotencyKey String
+  policyVersion  String
+  status         AccessStatus
+  createdAt      BigInt
+  expiresAt      BigInt
+  synthetic      Boolean
+
+  @@unique([actorId, idempotencyKey])
+  @@map("access_records")
+}
+
+/// The existing audit table is retained so IDs and historical events survive upgrades.
+model AuditEvent {
+  id        Int    @id @default(autoincrement())
+  requestId String
+  actorId   String
+  action    String
+  at        BigInt
+
+  @@map("audit")
+}
+
+/// Read only during the explicit legacy import. Retained as a recovery source.
+model LegacyAccessRequest {
+  id             String @id
+  actorId        String @map("actor_id")
+  idempotencyKey String @map("idempotency_key")
+  body           String
+
+  @@unique([actorId, idempotencyKey])
+  @@map("access_requests")
+}
+
+/// Startup refuses missing, incomplete or unsupported database preparation.
+model DatabaseState {
+  id             String  @id
+  schemaVersion  Int
+  legacyImported Boolean
+
+  @@map("database_state")
+}

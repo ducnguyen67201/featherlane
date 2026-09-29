@@ -1,0 +1,17 @@
+{
+  "name": "@featherlane/browser-worker",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "playwright": "1.63.0"
+  }
+}
